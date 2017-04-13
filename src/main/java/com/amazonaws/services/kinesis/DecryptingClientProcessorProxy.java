@@ -3,7 +3,7 @@ package com.amazonaws.services.kinesis;
 import java.util.List;
 
 import com.amazonaws.services.kinesis.clientlibrary.interfaces.IRecordProcessorCheckpointer;
-import com.amazonaws.services.kinesis.clientlibrary.types.ShutdownReason;
+import com.amazonaws.services.kinesis.clientlibrary.lib.worker.ShutdownReason;
 import com.amazonaws.services.kinesis.crypto.KinesisCryptoHelper;
 import com.amazonaws.services.kinesis.model.Record;
 
