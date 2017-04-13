@@ -10,6 +10,8 @@ Building KCL Applications typically requires that you build an `IRecordProcessor
 
 With the Amazon Kinesis Elastic Beanstalk Managed Consumer, you only have 1 job to do as a programmer. You must *effectively* implement the IRecordProcessor by extending a `ManagedClientProcessor` class. This class has all the smarts about how to commit changes to the Application's progress, how to startup and shutdown, and so on. This allows you to focus on wiring in the business logic for your application, and not worry how it gets started up and maintained over time. Furthermore, rather than you having to figure out how to run the `Worker` instance on multiple machines, this module provides integration with Elastic Beanstalk. By including this module as a dependency, and the building with Maven, this module will generate a deployable WAR for Apache Tomcat that can be dropped into Elastic Beanstalk. AWS will then handle starting your Kinesis Workers and ensuring that they are automatically scaled based on processing demand.
 
+This project also gives you the ability to easily work with Kinesis records that are encrypted with the [AWS Key Management Services (KMS)](https://aws.amazon.com/kms). By providing a KMS Key ARN and optionally an Encryption Context, the `ManagedConsumer` will automatically decrypt data before it is supplied to your record processor.
+
 ## Getting Started
 
 To get started with this project, just create a fork from Github. You'll see a `com.amazonaws.services.kinesis` package which contains all the managed code, which you are welcome to look at but are not required to change. You'll also see a default package which contains the `MyRecordProcessor` class. This can be renamed and moved as you like. If nothing else, you need to add your code to this bit of the `processRecords()` method:
@@ -34,6 +36,24 @@ public ManagedClientProcessor copy() throws Exception {
 ```
 
 However, if your `MyRecordProcessor` class has local state variables which must be configured on instance initialisation, then it is recommended that you provide these as Constructor arguments. For (hopefully) obvious reasons, using `static` variables is probably a really bad idea here, but if you know what you are doing then go ahead.
+
+## Working with encrypted Stream data
+
+Many customers require their data to be encrypted in flight within the Stream. Temitayo Olajide wrote [an excellent AWS Big Data Blog Post](https://aws.amazon.com/blogs/big-data/encrypt-and-decrypt-amazon-kinesis-records-using-aws-kms) which outlines how you can perform encryption and decryption in a sample project. We've incorporated his work into this managed codebase, so that decryption can be performed transparently, without you having to write *any* code at all.
+
+In the latest version of this module, all you need to do is configure an Elastic Beanstalk property `kms-decryption-key-arn`, which is the ARN for an Amazon KMS Key which is being used to encrypt data. You can also provide a `kms-encryption-context-hjson` parameter, which allows you to configure the encryption context using [HJson](https://hjson.org). For example:
+
+`kms-encryption-context-hjson` = `firstValue:10, secondValue: a`
+
+or with valid JSON:
+
+`kms-encryption-context-hjson` = `{"firstValue":10, "secondValue:" "a"}`
+
+You can also supply a property which turns off encryption context valdiation, should you desire to do so:
+
+`validate-encryption-context-bool = false`
+
+Once configured with the above settings, your application must have granted permissions for the provided KMS key, and will then automatically decrypt data before sending it to your ManagedClientProcessor instance.
 
 ## Running the application
 
