@@ -16,15 +16,7 @@ This project also gives you the ability to easily work with Kinesis records that
 
 To get started with this project, just create a fork from Github. You'll see a `com.amazonaws.services.kinesis` package which contains all the managed code, which you are welcome to look at but are not required to change. You'll also see a default package which contains the `MyRecordProcessor` class. This can be renamed and moved as you like. If nothing else, you need to add your code to this bit of the `processRecords()` method:
 
-```
-LOG.info(String.format("Received %s Records", records.size()));
-	
-// add a call to your business logic here!
-//
-// myLinkedClasses.doSomething(records)
-//
-//
-```
+![Image](MyClientProcessorProcessRecords.png)
 
 There's also a really important detail - when the KCL runs your application, in runs a separate `ManagedClientProcessor` instance in a Thread per Shard of the Stream. Because of this, we need a simple way to create new instances of `MyRecordProcessor`, and we've decided to use a `copy()` constructor. This is a method within `MyRecordProcessor` that knows how to create new instances of itself. The provided implementation just calls the `MyClientProcessor` constructor:
 
@@ -37,6 +29,7 @@ public ManagedClientProcessor copy() throws Exception {
 
 However, if your `MyRecordProcessor` class has local state variables which must be configured on instance initialisation, then it is recommended that you provide these as Constructor arguments. For (hopefully) obvious reasons, using `static` variables is probably a really bad idea here, but if you know what you are doing then go ahead.
 
+<<<<<<< HEAD
 ## Working with encrypted Stream data
 
 Many customers require their data to be encrypted in flight within the Stream. Temitayo Olajide wrote [an excellent AWS Big Data Blog Post](https://aws.amazon.com/blogs/big-data/encrypt-and-decrypt-amazon-kinesis-records-using-aws-kms) which outlines how you can perform encryption and decryption in a sample project. We've incorporated his work into this managed codebase, so that decryption can be performed transparently, without you having to write *any* code at all.
@@ -54,6 +47,9 @@ You can also supply a property which turns off encryption context valdiation, sh
 `validate-encryption-context-bool = false`
 
 Once configured with the above settings, your application must have granted permissions for the provided KMS key, and will then automatically decrypt data before sending it to your ManagedClientProcessor instance.
+=======
+
+>>>>>>> awslabs/master
 
 ## Running the application
 
